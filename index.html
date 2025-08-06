@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>С Днем Рождения, Бабушка!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Marck+Script&family=Caveat:wght@700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Caveat', cursive;
+            background: linear-gradient(135deg, #fff9f4, #ffe8e8, #f0fff0);
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: #5a3e36;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 500px;
+            min-height: 100vh;
+            text-align: center;
+            padding: 20px;
+            position: absolute;
+            top: 0;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1s ease;
+        }
+        
+        .screen.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            color: #c72c41;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            animation: pulse 2s infinite;
+            font-weight: bold;
+            line-height: 1.3;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .btn {
+            background: linear-gradient(to bottom, #ffb6c1, #ff69b4);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 40px;
+            font-size: 1.8rem;
+            font-family: 'Caveat', cursive;
+            cursor: pointer;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        /* Экран игры */
+        .game-area {
+            position: relative;
+            width: 100%;
+            height: 70vh;
+            margin: 20px 0;
+        }
+        
+        .vase {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(to bottom, #e6d3a7, #d4b483);
+            border-radius: 10px 10px 0 0;
+            z-index: 5;
+        }
+        
+        .vase::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 10px;
+            right: 10px;
+            height: 20px;
+            background: linear-gradient(to bottom, #d4b483, #e6d3a7);
+            border-radius: 50%;
+        }
+        
+        .vase::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: -10px;
+            right: -10px;
+            height: 20px;
+            background: #a67c52;
+            border-radius: 10px;
+        }
+        
+        .flower {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            z-index: 10;
+            user-select: none;
+            touch-action: none;
+            font-size: 4rem;
+        }
+        
+        .flower:hover {
+            transform: scale(1.1);
+        }
+        
+        .flower-collected {
+            animation: collect 1.5s forwards;
+        }
+        
+        @keyframes collect {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: translateY(-30px) scale(1.2); }
+            100% { transform: translateY(100px) scale(0); opacity: 0; }
+        }
+        
+        .counter {
+            font-size: 2rem;
+            margin: 15px 0;
+            color: #5a3e36;
+        }
+        
+        /* Слайд-шоу */
+        .slideshow-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            height: 300px;
+            margin: 30px auto;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: slideIn 1s ease forwards;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .slideshow-placeholder {
+            font-size: 1.2rem;
+            color: #5a3e36;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1.5s ease;
+            background-size: cover;
+            background-position: center;
+            border-radius: 15px;
+        }
+        
+        .slide.active {
+            opacity: 1;
+            z-index: 2;
+        }
+        
+        .slideshow-controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+        }
+        
+        .slideshow-btn {
+            background: rgba(255, 182, 193, 0.7);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .slideshow-btn:hover {
+            background: rgba(255, 105, 180, 0.9);
+            transform: scale(1.1);
+        }
+        
+        /* Финальное поздравление */
+        .message {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 25px;
+            border-radius: 20px;
+            margin: 30px 0;
+            font-size: 1.8rem;
+            line-height: 1.6;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+            max-width: 100%;
+        }
+        
+        .signature {
+            font-size: 2.5rem;
+            margin-top: 20px;
+            color: #c72c41;
+            font-family: 'Marck Script', cursive;
+        }
+        
+        /* Музыкальный контрол */
+        .music-control {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            z-index: 100;
+        }
+        
+        .music-control i {
+            font-size: 24px;
+            color: #c72c41;
+        }
+        
+        /* Адаптация для мобильных */
+        @media (max-width: 500px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .btn {
+                font-size: 1.5rem;
+                padding: 12px 30px;
+            }
+            
+            .message {
+                font-size: 1.5rem;
+            }
+            
+            .slideshow-container {
+                height: 250px;
+            }
+        }
+        
+        /* Декоративные элементы */
+        .decoration {
+            position: absolute;
+            z-index: -1;
+        }
+        
+        .heart {
+            position: absolute;
+            font-size: 3rem;
+            color: #ff6b6b;
+            animation: float 3s infinite ease-in-out;
+            z-index: 10;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+            100% { transform: translateY(0) rotate(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Экран приветствия -->
+    <div class="screen active" id="welcome-screen">
+        <h1>С Днём Рождения, наша любимая бабушка!</h1>
+        <div class="decoration" style="top: 20%; left: 15%; font-size: 3rem;">🌸</div>
+        <div class="decoration" style="top: 30%; right: 10%; font-size: 3rem;">🌺</div>
+        <div class="decoration" style="bottom: 25%; left: 20%; font-size: 4rem;">🌷</div>
+        <div class="decoration" style="bottom: 30%; right: 25%; font-size: 3rem;">🌹</div>
+        <button class="btn" id="start-btn">Начать игру</button>
+    </div>
+    
+    <!-- Экран игры -->
+    <div class="screen" id="game-screen">
+        <h2>Собери букет для бабушки!</h2>
+        <div class="counter">Цветов собрано: <span id="flower-count">0</span>/5</div>
+        <div class="game-area">
+            <div class="vase"></div>
+            <!-- Цветы будут добавлены динамически -->
+        </div>
+    </div>
+    
+    <!-- Экран слайд-шоу -->
+    <div class="screen" id="slideshow-screen">
+        <h1>Ты собрала букет, а теперь — моё поздравление!</h1>
+        <div class="slideshow-container" id="slideshow-container">
+            <div class="slideshow-placeholder">Загружаем фотографии...</div>
+            <!-- Слайды будут добавлены динамически -->
+        </div>
+        <div class="slideshow-controls">
+            <button class="slideshow-btn" id="prev-btn">❮</button>
+            <button class="slideshow-btn" id="next-btn">❯</button>
+        </div>
+        <button class="btn" id="message-btn">Читать поздравление</button>
+    </div>
+    
+    <!-- Финальный экран -->
+    <div class="screen" id="final-screen">
+        <div class="message">
+            <p>Дорогая бабушка!</p>
+            <p>Поздравляю тебя с днем рождения! Желаю тебе крепкого здоровья, бодрости духа и много-много радостных моментов в жизни. Ты - самый добрый, мудрый и заботливый человек на свете. Спасибо тебе за твою любовь, теплоту и поддержку во всем!</p>
+            <p>Пусть каждый твой день будет наполнен счастьем и улыбками близких людей!</p>
+            <div class="signature">С любовью, твои внук)</div>
+        </div>
+        <div class="decoration" style="top: 20%; left: 15%; font-size: 4rem;">💖</div>
+        <div class="decoration" style="top: 15%; right: 10%; font-size: 4rem;">💖</div>
+        <div class="decoration" style="bottom: 25%; left: 25%; font-size: 4rem;">💖</div>
+    </div>
+    
+    <!-- Контрол музыки -->
+    <div class="music-control" id="music-control">
+        <i>♪</i>
+    </div>
+    
+    <!-- Аудио -->
+    <audio id="background-music" loop>
+        <source src="birthday-music.mp3" type="audio/mpeg">
+    </audio>
+    
+    <script>
+        // Конфигурация приложения
+        const config = {
+            totalFlowers: 5,
+            slideDuration: 3000 // 3 секунды на каждый слайд
+        };
+        
+        // Элементы DOM
+        const screens = {
+            welcome: document.getElementById('welcome-screen'),
+            game: document.getElementById('game-screen'),
+            slideshow: document.getElementById('slideshow-screen'),
+            final: document.getElementById('final-screen')
+        };
+        
+        const startBtn = document.getElementById('start-btn');
+        const messageBtn = document.getElementById('message-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const gameArea = document.querySelector('.game-area');
+        const flowerCount = document.getElementById('flower-count');
+        const slideshowContainer = document.getElementById('slideshow-container');
+        const musicControl = document.getElementById('music-control');
+        const backgroundMusic = document.getElementById('background-music');
+        
+        // Состояние игры
+        let collectedFlowers = 0;
+        let currentSlide = 0;
+        let slideInterval = null;
+        
+        // Функция переключения экранов
+        function showScreen(screen) {
+            Object.values(screens).forEach(s => s.classList.remove('active'));
+            screen.classList.add('active');
+        }
+        
+        // Создание цветов для игры
+        function createFlowers() {
+            gameArea.innerHTML = '<div class="vase"></div>';
+            collectedFlowers = 0;
+            flowerCount.textContent = collectedFlowers;
+            
+            const flowerTypes = ['🌷', '🌹', '🌸', '🌺', '💐'];
+            
+            for (let i = 0; i < config.totalFlowers; i++) {
+                const flower = document.createElement('div');
+                flower.className = 'flower';
+                flower.textContent = flowerTypes[i];
+                
+                // Позиционируем цветы случайным образом в верхней части экрана
+                flower.style.left = `${20 + Math.random() * 60}%`;
+                flower.style.top = `${10 + Math.random() * 20}%`;
+                
+                flower.addEventListener('click', collectFlower);
+                gameArea.appendChild(flower);
+            }
+        }
+        
+        // Сбор цветка
+        function collectFlower(e) {
+            if (e.target.classList.contains('flower-collected')) return;
+            
+            e.target.classList.add('flower-collected');
+            collectedFlowers++;
+            flowerCount.textContent = collectedFlowers;
+            
+            // Когда все цветы собраны, переходим к следующему экрану
+            if (collectedFlowers >= config.totalFlowers) {
+                setTimeout(() => {
+                    showScreen(screens.slideshow);
+                    initSlideshow();
+                }, 1500);
+            }
+        }
+        
+        // Инициализация слайд-шоу
+        function initSlideshow() {
+            // Очищаем предыдущие слайды
+            slideshowContainer.innerHTML = '';
+            
+            // В реальном проекте замените на пути к вашим фотографиям
+            const photoUrls = [
+                'photo1.jpg',
+                'photo2.jpg',
+		'photo3.jpg',
+		'photo4.jpg',
+		'photo5.jpg',
+                'photo6.jpg'
+            ];
+            
+            // Если нет фотографий, показываем сообщение
+            if (photoUrls.length === 0) {
+                const placeholder = document.createElement('div');
+                placeholder.className = 'slideshow-placeholder';
+                placeholder.textContent = "Фотографии скоро появятся здесь!";
+                slideshowContainer.appendChild(placeholder);
+                return;
+            }
+            
+            // Создаем слайды
+            photoUrls.forEach((url, index) => {
+                const slide = document.createElement('div');
+                slide.className = 'slide';
+                slide.style.backgroundImage = `url(${url})`;
+                if (index === 0) slide.classList.add('active');
+                slideshowContainer.appendChild(slide);
+            });
+            
+            // Запускаем автоматическое переключение
+            startSlideshow();
+        }
+        
+        // Запуск слайд-шоу
+        function startSlideshow() {
+            const slides = document.querySelectorAll('.slide');
+            if (slides.length === 0) return;
+            
+            // Останавливаем предыдущий интервал
+            if (slideInterval) clearInterval(slideInterval);
+            
+            currentSlide = 0;
+            
+            slideInterval = setInterval(() => {
+                // Скрываем текущий слайд
+                slides[currentSlide].classList.remove('active');
+                
+                // Переходим к следующему слайду
+                currentSlide = (currentSlide + 1) % slides.length;
+                
+                // Показываем новый слайд
+                slides[currentSlide].classList.add('active');
+                
+                // Создаем плавающие сердечки
+                createHearts();
+            }, config.slideDuration);
+        }
+        
+        // Создание плавающих сердечек
+        function createHearts() {
+            for (let i = 0; i < 3; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.textContent = '💖';
+                
+                // Случайная позиция
+                heart.style.left = `${Math.random() * 80 + 10}%`;
+                heart.style.top = `${Math.random() * 30 + 10}%`;
+                
+                // Случайная анимация
+                heart.style.animationDuration = `${Math.random() * 2 + 2}s`;
+                heart.style.animationDelay = `${Math.random() * 1}s`;
+                
+                document.body.appendChild(heart);
+                
+                // Удаляем сердечко после завершения анимации
+                setTimeout(() => {
+                    heart.remove();
+                }, 5000);
+            }
+        }
+        
+        // Управление музыкой
+        musicControl.addEventListener('click', () => {
+            if (backgroundMusic.paused) {
+                backgroundMusic.play();
+                musicControl.innerHTML = '<i>♪</i>';
+            } else {
+                backgroundMusic.pause();
+                musicControl.innerHTML = '<i>🔇</i>';
+            }
+        });
+        
+        // Инициализация
+        window.addEventListener('DOMContentLoaded', () => {
+            // Создание цветов для игры
+            createFlowers();
+            
+            // Обработчики кнопок
+            startBtn.addEventListener('click', () => showScreen(screens.game));
+            messageBtn.addEventListener('click', () => showScreen(screens.final));
+            prevBtn.addEventListener('click', prevSlide);
+            nextBtn.addEventListener('click', nextSlide);
+            
+            // Попытка запустить музыку
+            try {
+                backgroundMusic.play();
+            } catch (e) {
+                console.log("Автовоспроизведение заблокировано");
+            }
+        });
+        
+        // Функции для переключения слайдов вручную
+        function prevSlide() {
+            const slides = document.querySelectorAll('.slide');
+            if (slides.length === 0) return;
+            
+            // Останавливаем автовоспроизведение
+            if (slideInterval) clearInterval(slideInterval);
+            
+            // Скрываем текущий слайд
+            slides[currentSlide].classList.remove('active');
+            
+            // Переходим к предыдущему слайду
+            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+            
+            // Показываем новый слайд
+            slides[currentSlide].classList.add('active');
+            
+            // Перезапускаем автовоспроизведение
+            slideInterval = setInterval(nextSlide, config.slideDuration);
+        }
+        
+        function nextSlide() {
+            const slides = document.querySelectorAll('.slide');
+            if (slides.length === 0) return;
+            
+            // Скрываем текущий слайд
+            slides[currentSlide].classList.remove('active');
+            
+            // Переходим к следующему слайду
+            currentSlide = (currentSlide + 1) % slides.length;
+            
+            // Показываем новый слайд
+            slides[currentSlide].classList.add('active');
+        }
+    </script>
+</body>
+</html>
